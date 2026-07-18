@@ -21,6 +21,7 @@ services:
       - open_seo_data:/app/.wrangler
     labels:
       - 'traefik.http.middlewares.openseo-auth-e12ge9.basicauth.users=openseo:$$2y$$05$$j.mx8RYoml0GWLF7pfBM/egbNKE1CW6YssD6IzzjqAalqmy5DncW.'
-      - 'traefik.http.routers.http-0-e12ge9hwaso337srv6lgkpmw-open-seo.middlewares=openseo-auth-e12ge9'
+      - 'traefik.http.middlewares.openseo-forwardedproto-e12ge9.headers.customrequestheaders.X-Forwarded-Proto=https'
+      - 'traefik.http.routers.http-0-e12ge9hwaso337srv6lgkpmw-open-seo.middlewares=openseo-auth-e12ge9,openseo-forwardedproto-e12ge9'
 volumes:
   open_seo_data:
