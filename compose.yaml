@@ -19,5 +19,7 @@ services:
       - "127.0.0.1:${PORT:-3001}:${PORT:-3001}"
     volumes:
       - open_seo_data:/app/.wrangler
+    labels:
+      - 'traefik.http.middlewares.openseo-auth-e12ge9.basicauth.users=openseo:$$2y$$05$$j.mx8RYoml0GWLF7pfBM/egbNKE1CW6YssD6IzzjqAalqmy5DncW.'
 volumes:
   open_seo_data:
