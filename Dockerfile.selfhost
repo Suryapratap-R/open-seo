@@ -13,11 +13,12 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN AUTH_MODE=local_noauth VITE_SHOW_DEVTOOLS=false NODE_OPTIONS=--max-old-space-size=4096 pnpm run build
+
 EXPOSE 3001
 
-# The build MUST run at container start, not image-build time: AUTH_MODE (and the
-# other client envs) are inlined into the client bundle by `vite build`, and the
-# self-hoster only chooses AUTH_MODE at runtime via Compose. Building here lets
-# that runtime value bake into the bundle. NODE_OPTIONS raises the V8 heap ceiling
-# so the SSR build of ~7400 modules doesn't OOM under Node's ~2GB default.
-CMD ["sh", "-c", "pnpm run db:migrate:local && NODE_OPTIONS=--max-old-space-size=4096 pnpm run build && pnpm exec vite preview --host 0.0.0.0 --port ${PORT:-3001}"]
+# This deployment's Compose contract is always local_noauth behind external
+# Traefik authentication, so the client bundle can be built before Coolify
+# replaces the running container. Runtime startup only applies local migrations
+# and starts the already-built preview server.
+CMD ["sh", "-c", "pnpm run db:migrate:local && exec pnpm exec vite preview --host 0.0.0.0 --port ${PORT:-3001}"]

@@ -1,6 +1,9 @@
 services:
   open-seo:
-    image: ${OPEN_SEO_IMAGE:-ghcr.io/every-app/open-seo:latest}
+    image: ${OPEN_SEO_IMAGE:-suryapratap-open-seo-selfhost:local}
+    build:
+      context: .
+      dockerfile: Dockerfile.selfhost
     restart: unless-stopped
     environment:
       # Required for local Docker self-hosting: exposes Compose env vars to cloudflare:workers bindings.
@@ -17,6 +20,18 @@ services:
       - VITE_SHOW_DEVTOOLS=false
     ports:
       - "127.0.0.1:${PORT:-3001}:${PORT:-3001}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:' + (process.env.PORT || 3001) + '/').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 15s
     volumes:
       - open_seo_data:/app/.wrangler
     labels:
